@@ -1,4 +1,5 @@
 import sqlite3
+from tkinter import *
 import pygame
 import os
 import sys
@@ -7,7 +8,10 @@ from os import path
 import time
 
 pygame.init()
-size = width, height = 1600, 800
+root = Tk()
+screenWidth = root.winfo_screenwidth()
+screenHeight = root.winfo_screenheight()
+size = width, height = screenWidth, screenHeight
 screen = pygame.display.set_mode(size)
 background_rect = screen.get_rect()
 font_name = pygame.font.match_font('arial')
@@ -52,10 +56,10 @@ class DataBaseOut:
     def __init__(self):
         self.con = sqlite3.connect("score_db")
         cur = self.con.cursor()
-        res = cur.execute("""SELECT nickname FROM history ORDER BY score DESC LIMIT 0,5""")
+        res = cur.execute("""SELECT * FROM history ORDER BY score DESC LIMIT 0,5""")
         with open("top_5.txt", "w") as file:
             for i in list(res):
-                file.write(i[0] + '\n')
+                file.write(str(i) + '\n')
         file.close()
         self.con.commit()
         self.con.close()
@@ -198,10 +202,9 @@ def start_screen():
     done = False
 
     while not done:
-        for event in pygame.event.get():
+        for event in pygame.event.get() :
             if event.type == pygame.QUIT:
                 terminate()
-
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if input_box.collidepoint(event.pos):
                     active = not active
@@ -209,14 +212,16 @@ def start_screen():
                     active = False
                 color = color_active if active else color_inactive
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    terminate()
                 if active:
                     if event.key == pygame.K_RETURN:
                         nick = text
                         text = ''
                         done = True
 
-                    elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
+                    if event.key == pygame.K_BACKSPACE:
+                        text = text.replace(text[:], text[:-1])
                     else:
                         text += event.unicode
 
@@ -261,6 +266,9 @@ def end_screen_win():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    terminate()
         pygame.display.flip()
         clock.tick(fps)
 
@@ -296,6 +304,9 @@ def end_screen_lose():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    terminate()
         pygame.display.flip()
         clock.tick(fps)
 
@@ -318,7 +329,7 @@ time = 0
 top_5 = []
 while running:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT or event.key == pygame.K_ESCAPE:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
@@ -338,7 +349,7 @@ while running:
                 to_down = False
             if event.key == pygame.K_UP:
                 to_up = False
-        if Hero.score >= 10:
+        if Hero.score >= 100:
             DataBaseApp(nick, Hero.score)
             end_screen_win()
 

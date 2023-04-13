@@ -1,5 +1,5 @@
 import sqlite3
-#from tkinter import *
+from tkinter import *
 import pygame
 import os
 import sys
@@ -8,9 +8,9 @@ from os import path
 import time
 from random import randint
 pygame.init()
-#root = Tk()
-screenWidth = 1424# root.winfo_screenwidth()
-screenHeight = 900# root.winfo_screenheight()
+root = Tk()
+screenWidth =  root.winfo_screenwidth()
+screenHeight =  root.winfo_screenheight()
 size = width, height = screenWidth, screenHeight
 screen = pygame.display.set_mode(size)
 background_rect = screen.get_rect()
@@ -158,19 +158,13 @@ class AnimatedSprite(pygame.sprite.Sprite):
         bombed = 0
         if self.rect.bottomleft[0] % 200 == 0 and self.rect.bottomleft[0] < 1600:
             Friend(self.rect.bottomleft[0])
+            chance = randint(0,10)
+            possibility = min( min(time // 200,10) , 1  )     +     5*(bombed<1) - 6*(bombed>=3) - 100*(bombed>=5)
             
-            if time < 400:
-                if randint(0,10)<=2+5*(bombed<1):
-                    Bomb(self.rect.bottomleft[0])
-                    bombed +=1
-            elif 800 > time > 600 :
-                if randint(0,10)<=4:
-                    Bomb(self.rect.bottomleft[0])
-                    bombed +=1
-            elif time > 800:
-                if randint(0,10)<=7:
-                    Bomb(self.rect.bottomleft[0])
-                    bombed +=1
+            if chance<possibility:
+                Bomb(  self.rect.bottomleft[0]-randint(0,40)  )
+                bombed +=1
+             
 
         if self.rect.center[0] > 2000:
             self.rect.x = 0
